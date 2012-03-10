@@ -33,6 +33,7 @@ package starling.core
         private var mMvpMatrix:Matrix3D;
         private var mMatrixStack:Vector.<Matrix3D>;
         private var mMatrixStackSize:int;
+		private var mCurrentBlendMode: BlendMode;
         
         private var mQuadBatches:Vector.<QuadBatch>;
         private var mCurrentQuadBatchID:int;
@@ -57,6 +58,7 @@ package starling.core
             loadIdentity();
             setOrthographicProjection(400, 300);
             
+			mCurrentBlendMode = BlendMode.NORMAL;
             Starling.current.addEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
         }
         
@@ -176,12 +178,12 @@ package starling.core
         /** Adds a quad to the current batch of unrendered quads. If there is a state change,
          *  all previous quads are rendered at once, and the batch is reset. */
         public function batchQuad(quad:Quad, alpha:Number, 
-                                  texture:Texture=null, smoothing:String=null):void
+                                  texture:Texture=null, smoothing:String=null, blendMode : BlendMode = null):void
         {
-            if (currentQuadBatch.isStateChange(quad, texture, smoothing))
+            if (currentQuadBatch.isStateChange(quad, texture, smoothing, blendMode))
                 finishQuadBatch();
             
-            currentQuadBatch.addQuad(quad, alpha, texture, smoothing, mModelViewMatrix);
+            currentQuadBatch.addQuad(quad, alpha, texture, smoothing, blendMode, mModelViewMatrix);
         }
         
         /** Renders the current quad batch and resets it. */
@@ -218,6 +220,19 @@ package starling.core
             var sourceFactor:String = premultipliedAlpha ? Context3DBlendFactor.ONE :
                                                            Context3DBlendFactor.SOURCE_ALPHA;
             Starling.context.setBlendFactors(sourceFactor, destFactor);
+        }
+        public static function setBlendFactors(blendMode : BlendMode, premultipliedAlpha:Boolean):void
+        {
+			if(blendMode == null){
+				blendMode = BlendMode.NORMAL;
+			}
+
+			var bm : BlendMode = blendMode;
+
+			if (blendMode == BlendMode.NORMAL){
+				bm = BlendMode.NORMAL_PREMULTIPLIED;
+			}
+            Starling.context.setBlendFactors(bm.src, bm.dst);
         }
         
         /** Clears the render context with a certain color and alpha value. */

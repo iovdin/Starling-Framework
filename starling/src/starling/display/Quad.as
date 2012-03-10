@@ -39,6 +39,7 @@ package starling.display
     {
         /** The raw vertex data of the quad. */
         protected var mVertexData:VertexData;
+		public var blendMode : BlendMode = BlendMode.NORMAL;
         
         /** Helper objects. */
         private static var sPosition:Vector3D = new Vector3D();
@@ -156,7 +157,7 @@ package starling.display
         /** @inheritDoc */
         public override function render(support:RenderSupport, alpha:Number):void
         {
-            support.batchQuad(this, alpha);
+            support.batchQuad(this, alpha, null, null, blendMode);
         }
     }
 }
